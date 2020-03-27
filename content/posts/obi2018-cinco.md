@@ -2,7 +2,7 @@
 title: "Solução OBI 2018 Cinco"
 date: 2020-02-05
 tags: ["OBI"]
-categories: ["Competitive Programming"]
+categories: ["PT"]
 ---
 [Enunciado](https://olimpiada.ic.unicamp.br/pratique/pu/2018/f3/cinco/)  
 Podemos criar um algoritmo guloso simples, trocar sempre (em ordem):

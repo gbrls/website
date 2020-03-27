@@ -2,7 +2,7 @@
 title: "Solução OBI 2018 Maximin"
 date: 2020-02-05
 tags: ["OBI"]
-categories: ["Competitive Programming"]
+categories: ["PT"]
 ---
 [Enunciado](https://olimpiada.ic.unicamp.br/pratique/pu/2018/f3/maximin/)  
 Como o tamanho máximo do vetor é \\(10^5\\) podemos ordená-lo. Fazendo isso podemos ver que o número que estamos procurando está
