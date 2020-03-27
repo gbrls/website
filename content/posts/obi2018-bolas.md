@@ -2,7 +2,7 @@
 title: "Solução OBI 2018 Bolas"
 date: 2020-02-05
 tags: ["OBI"]
-categories: ["PT"]
+categories: ["Português"]
 
 ---
 [Enunciado](https://olimpiada.ic.unicamp.br/pratique/pu/2018/f3/bolas/).

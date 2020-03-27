@@ -2,7 +2,7 @@
 title: Solução OBI 2018 Muro
 date: 2020-02-05
 tags: ["OBI"]
-categories: ["PT"]
+categories: ["Português"]
 ---
 [Enunciado](https://olimpiada.ic.unicamp.br/pratique/pu/2018/f3/muro/)  
 Podemos criar uma função recursiva: $$f(n) = f(n-1) + 4f(n-2) + 2f(n-3)$$. Como existem estados que irão se repetir, podemos
