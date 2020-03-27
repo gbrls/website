@@ -5,7 +5,13 @@ tags: ["OBI"]
 categories: ["Português"]
 ---
 [Enunciado](https://olimpiada.ic.unicamp.br/pratique/pu/2018/f3/muro/)  
-Podemos criar uma função recursiva: $$f(n) = f(n-1) + 4f(n-2) + 2f(n-3)$$. Como existem estados que irão se repetir, podemos
+Podemos criar uma função recursiva \\(f\\): 
+
+$$ f(0) = 1 $$
+
+$$ f(n) = f(n-1) + 4f(n-2) + 2f(n-3) \quad \text{para } n > 0 $$
+
+Como existem estados que irão se repetir, podemos
 usar um vetor para guardar o valor da função já computados.
 
 
