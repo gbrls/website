@@ -1,0 +1,205 @@
+<?xml version="1.0" encoding="utf-8"?><?xml-stylesheet type="text/xsl" href="https://gbrls.netlify.com/xml/base.min.xml"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>OBI on gbrls</title><link>https://gbrls.netlify.com/tags/obi/</link><description>Recent content in OBI on gbrls</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Wed, 05 Feb 2020 00:00:00 +0000</lastBuildDate><atom:link href="https://gbrls.netlify.com/tags/obi/index.xml" rel="self" type="application/rss+xml"/><item><title>Solução OBI 2018 Baldes</title><link>https://gbrls.netlify.com/obi2018-baldes/</link><pubDate>Wed, 05 Feb 2020 00:00:00 +0000</pubDate><guid>https://gbrls.netlify.com/obi2018-baldes/</guid><description>&lt;p>&lt;a href="https://olimpiada.ic.unicamp.br/pratique/pu/2018/f3/baldes/">Enunciado&lt;/a>&lt;br>
+Na minha primeira leitura, vi que esta é uma questão clássica de segtree. Um vetor de tamanho \(10^5\) e \(10^5\) queries dentro desse intervalo. Iremos fazer uma segtree para o mínimo num intervalo e outra para o máximo, sendo a resposta da query em um intervalo o max-min. Para simplificar isso, podemos guardar as duas árvores apenas em um vetor de pairs.&lt;/p>
+&lt;p>Porém após implementar a primeira solução e não funcionar fiz uma segunda leitura e percebi que o max e o min não podem estar no mesmo balde (na mesma posição no vetor). Então troquei o pair por uma struct, para guardar de qual balde o max e o min vieram. Quando o min e o max estiverem no mesmo balde temos uma certeza, um dos dois faz parte da solução. Nesse caso podemos testar, o query sem o min, mas com o max e o query sem o max, mas com o min.&lt;/p>
+&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-cpp" data-lang="cpp">&lt;span style="color:#75715e">#include&lt;/span> &lt;span style="color:#75715e">&amp;lt;bits/stdc++.h&amp;gt;&lt;/span>&lt;span style="color:#75715e">
+&lt;/span>&lt;span style="color:#75715e">&lt;/span>&lt;span style="color:#66d9ef">typedef&lt;/span> &lt;span style="color:#66d9ef">struct&lt;/span> &lt;span style="color:#a6e22e">ii&lt;/span> {
+&lt;span style="color:#66d9ef">int&lt;/span> first;
+&lt;span style="color:#66d9ef">int&lt;/span> second;
+&lt;span style="color:#66d9ef">int&lt;/span> i;
+&lt;span style="color:#66d9ef">int&lt;/span> j;
+} ii;
+&lt;span style="color:#66d9ef">using&lt;/span> &lt;span style="color:#66d9ef">namespace&lt;/span> std;
+&lt;span style="color:#66d9ef">const&lt;/span> &lt;span style="color:#66d9ef">int&lt;/span> MAX &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#ae81ff">5e5&lt;/span>&lt;span style="color:#f92672">+&lt;/span>&lt;span style="color:#ae81ff">50&lt;/span>;
+&lt;span style="color:#66d9ef">const&lt;/span> &lt;span style="color:#66d9ef">int&lt;/span> inf &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#ae81ff">0x3f3f3f3f&lt;/span>;
+ii tree[MAX]&lt;span style="color:#f92672">=&lt;/span>{};
+&lt;span style="color:#66d9ef">int&lt;/span> arr[MAX];
+ii &lt;span style="color:#a6e22e">merge&lt;/span>(ii a, ii b) {
+ii c &lt;span style="color:#f92672">=&lt;/span> {min(a.first,b.first),max(a.second,b.second),&lt;span style="color:#f92672">-&lt;/span>&lt;span style="color:#ae81ff">1&lt;/span>,&lt;span style="color:#f92672">-&lt;/span>&lt;span style="color:#ae81ff">2&lt;/span>};
+&lt;span style="color:#66d9ef">if&lt;/span>(c.first&lt;span style="color:#f92672">==&lt;/span>a.first) c.i&lt;span style="color:#f92672">=&lt;/span>a.i;
+&lt;span style="color:#66d9ef">else&lt;/span> c.i&lt;span style="color:#f92672">=&lt;/span>b.i;
+&lt;span style="color:#66d9ef">if&lt;/span>(c.second&lt;span style="color:#f92672">==&lt;/span>a.second) c.j&lt;span style="color:#f92672">=&lt;/span>a.j;
+&lt;span style="color:#66d9ef">else&lt;/span> c.j&lt;span style="color:#f92672">=&lt;/span>b.j;
+&lt;span style="color:#66d9ef">return&lt;/span> c;
+}
+&lt;span style="color:#66d9ef">void&lt;/span> &lt;span style="color:#a6e22e">build&lt;/span>(&lt;span style="color:#66d9ef">int&lt;/span> pos, &lt;span style="color:#66d9ef">int&lt;/span> i, &lt;span style="color:#66d9ef">int&lt;/span> j) {
+&lt;span style="color:#66d9ef">if&lt;/span>(i&lt;span style="color:#f92672">==&lt;/span>j) {
+tree[pos]&lt;span style="color:#f92672">=&lt;/span>{arr[i],arr[i],i,i};
+&lt;span style="color:#66d9ef">if&lt;/span>(arr[i]&lt;span style="color:#f92672">==&lt;/span>&lt;span style="color:#ae81ff">0&lt;/span>) {
+tree[pos]&lt;span style="color:#f92672">=&lt;/span>{inf,&lt;span style="color:#f92672">-&lt;/span>inf,&lt;span style="color:#f92672">-&lt;/span>&lt;span style="color:#ae81ff">1&lt;/span>,&lt;span style="color:#f92672">-&lt;/span>&lt;span style="color:#ae81ff">2&lt;/span>};
+}
+} &lt;span style="color:#66d9ef">else&lt;/span> {
+build(&lt;span style="color:#ae81ff">2&lt;/span>&lt;span style="color:#f92672">*&lt;/span>pos,i,(i&lt;span style="color:#f92672">+&lt;/span>j)&lt;span style="color:#f92672">/&lt;/span>&lt;span style="color:#ae81ff">2&lt;/span>);
+build(&lt;span style="color:#ae81ff">2&lt;/span>&lt;span style="color:#f92672">*&lt;/span>pos&lt;span style="color:#f92672">+&lt;/span>&lt;span style="color:#ae81ff">1&lt;/span>,(i&lt;span style="color:#f92672">+&lt;/span>j)&lt;span style="color:#f92672">/&lt;/span>&lt;span style="color:#ae81ff">2&lt;/span>&lt;span style="color:#f92672">+&lt;/span>&lt;span style="color:#ae81ff">1&lt;/span>,j);
+tree[pos]&lt;span style="color:#f92672">=&lt;/span>merge(tree[&lt;span style="color:#ae81ff">2&lt;/span>&lt;span style="color:#f92672">*&lt;/span>pos],tree[&lt;span style="color:#ae81ff">2&lt;/span>&lt;span style="color:#f92672">*&lt;/span>pos&lt;span style="color:#f92672">+&lt;/span>&lt;span style="color:#ae81ff">1&lt;/span>]);
+}
+}
+&lt;span style="color:#66d9ef">void&lt;/span> &lt;span style="color:#a6e22e">update&lt;/span>(&lt;span style="color:#66d9ef">int&lt;/span> pos, &lt;span style="color:#66d9ef">int&lt;/span> i, &lt;span style="color:#66d9ef">int&lt;/span> j, &lt;span style="color:#66d9ef">int&lt;/span> target, ii val) {
+&lt;span style="color:#66d9ef">if&lt;/span>(i&lt;span style="color:#f92672">==&lt;/span>j) {
+&lt;span style="color:#66d9ef">if&lt;/span>(tree[pos].first&lt;span style="color:#f92672">!=&lt;/span>&lt;span style="color:#ae81ff">0&lt;/span>&lt;span style="color:#f92672">&amp;amp;&amp;amp;&lt;/span>tree[pos].second&lt;span style="color:#f92672">!=&lt;/span>&lt;span style="color:#ae81ff">0&lt;/span>) {
+tree[pos]&lt;span style="color:#f92672">=&lt;/span>merge(tree[pos],val);
+} &lt;span style="color:#66d9ef">else&lt;/span> {
+tree[pos]&lt;span style="color:#f92672">=&lt;/span>val;
+}
+} &lt;span style="color:#66d9ef">else&lt;/span> {
+&lt;span style="color:#66d9ef">if&lt;/span>(target &lt;span style="color:#f92672">&amp;lt;=&lt;/span> (i&lt;span style="color:#f92672">+&lt;/span>j)&lt;span style="color:#f92672">/&lt;/span>&lt;span style="color:#ae81ff">2&lt;/span>) update(&lt;span style="color:#ae81ff">2&lt;/span>&lt;span style="color:#f92672">*&lt;/span>pos,i,(i&lt;span style="color:#f92672">+&lt;/span>j)&lt;span style="color:#f92672">/&lt;/span>&lt;span style="color:#ae81ff">2&lt;/span>,target,val);
+&lt;span style="color:#66d9ef">else&lt;/span> update(&lt;span style="color:#ae81ff">2&lt;/span>&lt;span style="color:#f92672">*&lt;/span>pos&lt;span style="color:#f92672">+&lt;/span>&lt;span style="color:#ae81ff">1&lt;/span>,(i&lt;span style="color:#f92672">+&lt;/span>j)&lt;span style="color:#f92672">/&lt;/span>&lt;span style="color:#ae81ff">2&lt;/span>&lt;span style="color:#f92672">+&lt;/span>&lt;span style="color:#ae81ff">1&lt;/span>,j,target,val);
+tree[pos]&lt;span style="color:#f92672">=&lt;/span>merge(tree[&lt;span style="color:#ae81ff">2&lt;/span>&lt;span style="color:#f92672">*&lt;/span>pos],tree[&lt;span style="color:#ae81ff">2&lt;/span>&lt;span style="color:#f92672">*&lt;/span>pos&lt;span style="color:#f92672">+&lt;/span>&lt;span style="color:#ae81ff">1&lt;/span>]);
+}
+}
+&lt;span style="color:#66d9ef">void&lt;/span> &lt;span style="color:#a6e22e">force_update&lt;/span>(&lt;span style="color:#66d9ef">int&lt;/span> pos, &lt;span style="color:#66d9ef">int&lt;/span> i, &lt;span style="color:#66d9ef">int&lt;/span> j, &lt;span style="color:#66d9ef">int&lt;/span> target, ii val) {
+&lt;span style="color:#66d9ef">if&lt;/span>(i&lt;span style="color:#f92672">==&lt;/span>j) {
+tree[pos]&lt;span style="color:#f92672">=&lt;/span>val;
+} &lt;span style="color:#66d9ef">else&lt;/span> {
+&lt;span style="color:#66d9ef">if&lt;/span>(target &lt;span style="color:#f92672">&amp;lt;=&lt;/span> (i&lt;span style="color:#f92672">+&lt;/span>j)&lt;span style="color:#f92672">/&lt;/span>&lt;span style="color:#ae81ff">2&lt;/span>) force_update(&lt;span style="color:#ae81ff">2&lt;/span>&lt;span style="color:#f92672">*&lt;/span>pos,i,(i&lt;span style="color:#f92672">+&lt;/span>j)&lt;span style="color:#f92672">/&lt;/span>&lt;span style="color:#ae81ff">2&lt;/span>,target,val);
+&lt;span style="color:#66d9ef">else&lt;/span> force_update(&lt;span style="color:#ae81ff">2&lt;/span>&lt;span style="color:#f92672">*&lt;/span>pos&lt;span style="color:#f92672">+&lt;/span>&lt;span style="color:#ae81ff">1&lt;/span>,(i&lt;span style="color:#f92672">+&lt;/span>j)&lt;span style="color:#f92672">/&lt;/span>&lt;span style="color:#ae81ff">2&lt;/span>&lt;span style="color:#f92672">+&lt;/span>&lt;span style="color:#ae81ff">1&lt;/span>,j,target,val);
+tree[pos]&lt;span style="color:#f92672">=&lt;/span>merge(tree[&lt;span style="color:#ae81ff">2&lt;/span>&lt;span style="color:#f92672">*&lt;/span>pos],tree[&lt;span style="color:#ae81ff">2&lt;/span>&lt;span style="color:#f92672">*&lt;/span>pos&lt;span style="color:#f92672">+&lt;/span>&lt;span style="color:#ae81ff">1&lt;/span>]);
+}
+}
+ii &lt;span style="color:#a6e22e">query&lt;/span>(&lt;span style="color:#66d9ef">int&lt;/span> pos, &lt;span style="color:#66d9ef">int&lt;/span> i, &lt;span style="color:#66d9ef">int&lt;/span> j, &lt;span style="color:#66d9ef">int&lt;/span> a, &lt;span style="color:#66d9ef">int&lt;/span> b) {
+&lt;span style="color:#66d9ef">if&lt;/span>(i&lt;span style="color:#f92672">&amp;gt;&lt;/span>b&lt;span style="color:#f92672">||&lt;/span>j&lt;span style="color:#f92672">&amp;lt;&lt;/span>a) {
+&lt;span style="color:#66d9ef">return&lt;/span> {inf,&lt;span style="color:#f92672">-&lt;/span>inf, &lt;span style="color:#f92672">-&lt;/span>&lt;span style="color:#ae81ff">1&lt;/span>, &lt;span style="color:#f92672">-&lt;/span>&lt;span style="color:#ae81ff">2&lt;/span>};
+} &lt;span style="color:#66d9ef">else&lt;/span> &lt;span style="color:#66d9ef">if&lt;/span>(i&lt;span style="color:#f92672">&amp;gt;=&lt;/span>a&lt;span style="color:#f92672">&amp;amp;&amp;amp;&lt;/span>j&lt;span style="color:#f92672">&amp;lt;=&lt;/span>b) {
+&lt;span style="color:#66d9ef">return&lt;/span> tree[pos];
+} &lt;span style="color:#66d9ef">else&lt;/span> {
+&lt;span style="color:#66d9ef">return&lt;/span> merge(query(&lt;span style="color:#ae81ff">2&lt;/span>&lt;span style="color:#f92672">*&lt;/span>pos,i,(i&lt;span style="color:#f92672">+&lt;/span>j)&lt;span style="color:#f92672">/&lt;/span>&lt;span style="color:#ae81ff">2&lt;/span>,a,b),query(&lt;span style="color:#ae81ff">2&lt;/span>&lt;span style="color:#f92672">*&lt;/span>pos&lt;span style="color:#f92672">+&lt;/span>&lt;span style="color:#ae81ff">1&lt;/span>,(i&lt;span style="color:#f92672">+&lt;/span>j)&lt;span style="color:#f92672">/&lt;/span>&lt;span style="color:#ae81ff">2&lt;/span>&lt;span style="color:#f92672">+&lt;/span>&lt;span style="color:#ae81ff">1&lt;/span>,j,a,b));
+}
+}
+&lt;span style="color:#66d9ef">int&lt;/span> &lt;span style="color:#a6e22e">main&lt;/span>() {
+&lt;span style="color:#66d9ef">int&lt;/span> n,m;
+scanf(&lt;span style="color:#e6db74">&amp;#34;%d%d&amp;#34;&lt;/span>,&lt;span style="color:#f92672">&amp;amp;&lt;/span>n,&lt;span style="color:#f92672">&amp;amp;&lt;/span>m);
+&lt;span style="color:#66d9ef">for&lt;/span>(&lt;span style="color:#66d9ef">int&lt;/span> i&lt;span style="color:#f92672">=&lt;/span>&lt;span style="color:#ae81ff">0&lt;/span>;i&lt;span style="color:#f92672">&amp;lt;&lt;/span>n;i&lt;span style="color:#f92672">++&lt;/span>) scanf(&lt;span style="color:#e6db74">&amp;#34;%d&amp;#34;&lt;/span>,&lt;span style="color:#f92672">&amp;amp;&lt;/span>arr[i]);
+build(&lt;span style="color:#ae81ff">1&lt;/span>,&lt;span style="color:#ae81ff">0&lt;/span>,n);
+&lt;span style="color:#66d9ef">for&lt;/span>(&lt;span style="color:#66d9ef">int&lt;/span> i&lt;span style="color:#f92672">=&lt;/span>&lt;span style="color:#ae81ff">0&lt;/span>;i&lt;span style="color:#f92672">&amp;lt;&lt;/span>m;i&lt;span style="color:#f92672">++&lt;/span>) {
+&lt;span style="color:#66d9ef">int&lt;/span> op;
+scanf(&lt;span style="color:#e6db74">&amp;#34;%d&amp;#34;&lt;/span>,&lt;span style="color:#f92672">&amp;amp;&lt;/span>op);
+&lt;span style="color:#66d9ef">if&lt;/span>(op&lt;span style="color:#f92672">==&lt;/span>&lt;span style="color:#ae81ff">1&lt;/span>) {
+&lt;span style="color:#66d9ef">int&lt;/span> w,p;
+scanf(&lt;span style="color:#e6db74">&amp;#34;%d%d&amp;#34;&lt;/span>,&lt;span style="color:#f92672">&amp;amp;&lt;/span>w,&lt;span style="color:#f92672">&amp;amp;&lt;/span>p);
+&lt;span style="color:#f92672">--&lt;/span>p;
+update(&lt;span style="color:#ae81ff">1&lt;/span>,&lt;span style="color:#ae81ff">0&lt;/span>,n,p,{w,w,p,p});
+} &lt;span style="color:#66d9ef">else&lt;/span> {
+&lt;span style="color:#66d9ef">int&lt;/span> a,b;
+scanf(&lt;span style="color:#e6db74">&amp;#34;%d%d&amp;#34;&lt;/span>,&lt;span style="color:#f92672">&amp;amp;&lt;/span>a,&lt;span style="color:#f92672">&amp;amp;&lt;/span>b);
+&lt;span style="color:#f92672">--&lt;/span>a,&lt;span style="color:#f92672">--&lt;/span>b;
+ii p &lt;span style="color:#f92672">=&lt;/span> query(&lt;span style="color:#ae81ff">1&lt;/span>,&lt;span style="color:#ae81ff">0&lt;/span>,n,a,b);
+&lt;span style="color:#66d9ef">if&lt;/span>(p.i&lt;span style="color:#f92672">==&lt;/span>p.j) {
+ii tmp &lt;span style="color:#f92672">=&lt;/span> p;
+&lt;span style="color:#66d9ef">int&lt;/span> ans&lt;span style="color:#f92672">=&lt;/span>&lt;span style="color:#ae81ff">0&lt;/span>;
+force_update(&lt;span style="color:#ae81ff">1&lt;/span>,&lt;span style="color:#ae81ff">0&lt;/span>,n,p.i,{p.first,&lt;span style="color:#f92672">-&lt;/span>inf,p.i,p.j});
+ii A &lt;span style="color:#f92672">=&lt;/span> query(&lt;span style="color:#ae81ff">1&lt;/span>,&lt;span style="color:#ae81ff">0&lt;/span>,n,a,b);
+force_update(&lt;span style="color:#ae81ff">1&lt;/span>,&lt;span style="color:#ae81ff">0&lt;/span>,n,p.i,{inf,p.second,p.i,p.j});
+ii B &lt;span style="color:#f92672">=&lt;/span> query(&lt;span style="color:#ae81ff">1&lt;/span>,&lt;span style="color:#ae81ff">0&lt;/span>,n,a,b);
+ans&lt;span style="color:#f92672">=&lt;/span>max(A.second&lt;span style="color:#f92672">-&lt;/span>A.first,B.second&lt;span style="color:#f92672">-&lt;/span>B.first);
+printf(&lt;span style="color:#e6db74">&amp;#34;%d&lt;/span>&lt;span style="color:#ae81ff">\n&lt;/span>&lt;span style="color:#e6db74">&amp;#34;&lt;/span>,ans);
+update(&lt;span style="color:#ae81ff">1&lt;/span>,&lt;span style="color:#ae81ff">0&lt;/span>,n,p.i,p);
+} &lt;span style="color:#66d9ef">else&lt;/span> {
+printf(&lt;span style="color:#e6db74">&amp;#34;%d&lt;/span>&lt;span style="color:#ae81ff">\n&lt;/span>&lt;span style="color:#e6db74">&amp;#34;&lt;/span>,p.second&lt;span style="color:#f92672">-&lt;/span>p.first);
+}
+}
+}
+&lt;span style="color:#66d9ef">return&lt;/span> &lt;span style="color:#ae81ff">0&lt;/span>;
+}
+&lt;/code>&lt;/pre>&lt;/div></description></item><item><title>Solução OBI 2018 Bolas</title><link>https://gbrls.netlify.com/obi2018-bolas/</link><pubDate>Wed, 05 Feb 2020 00:00:00 +0000</pubDate><guid>https://gbrls.netlify.com/obi2018-bolas/</guid><description>&lt;p>&lt;a href="https://olimpiada.ic.unicamp.br/pratique/pu/2018/f3/bolas/">Enunciado&lt;/a>.&lt;/p>
+&lt;p>Como o tamano do vetor é \(8\) e temos sempre \(8\) números para escolher, existem \(8!\) permutações possíveis. Como \(8!\) é pequeno, podemos fazer uma solução de busca completa. Existem de varias soluções possíveis como com &lt;em>next_permutation&lt;/em>. Segue uma solução de backtracking:&lt;/p>
+&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-cpp" data-lang="cpp">&lt;span style="color:#75715e">#include&lt;/span> &lt;span style="color:#75715e">&amp;lt;bits/stdc++.h&amp;gt;&lt;/span>&lt;span style="color:#75715e">
+&lt;/span>&lt;span style="color:#75715e">&lt;/span>&lt;span style="color:#66d9ef">using&lt;/span> &lt;span style="color:#66d9ef">namespace&lt;/span> std;
+&lt;span style="color:#66d9ef">int&lt;/span> vet[&lt;span style="color:#ae81ff">9&lt;/span>]&lt;span style="color:#f92672">=&lt;/span>{};
+&lt;span style="color:#66d9ef">int&lt;/span> &lt;span style="color:#a6e22e">solve&lt;/span>(&lt;span style="color:#66d9ef">int&lt;/span> pos, &lt;span style="color:#66d9ef">int&lt;/span> n) {
+&lt;span style="color:#66d9ef">if&lt;/span>(pos&lt;span style="color:#f92672">==&lt;/span>&lt;span style="color:#ae81ff">8&lt;/span>) &lt;span style="color:#66d9ef">return&lt;/span> &lt;span style="color:#ae81ff">1&lt;/span>;
+&lt;span style="color:#66d9ef">int&lt;/span> ans&lt;span style="color:#f92672">=&lt;/span>&lt;span style="color:#ae81ff">0&lt;/span>;
+&lt;span style="color:#66d9ef">for&lt;/span>(&lt;span style="color:#66d9ef">int&lt;/span> i&lt;span style="color:#f92672">=&lt;/span>&lt;span style="color:#ae81ff">0&lt;/span>;i&lt;span style="color:#f92672">&amp;lt;=&lt;/span>&lt;span style="color:#ae81ff">9&lt;/span>;i&lt;span style="color:#f92672">++&lt;/span>) {
+&lt;span style="color:#66d9ef">if&lt;/span>(n &lt;span style="color:#f92672">!=&lt;/span> i &lt;span style="color:#f92672">&amp;amp;&amp;amp;&lt;/span> vet[i]) {
+vet[i]&lt;span style="color:#f92672">--&lt;/span>;
+ans&lt;span style="color:#f92672">|=&lt;/span>solve(pos&lt;span style="color:#f92672">+&lt;/span>&lt;span style="color:#ae81ff">1&lt;/span>,i);
+vet[i]&lt;span style="color:#f92672">++&lt;/span>;
+}
+}
+&lt;span style="color:#66d9ef">return&lt;/span> ans;
+}
+&lt;span style="color:#66d9ef">int&lt;/span> &lt;span style="color:#a6e22e">main&lt;/span>() {
+&lt;span style="color:#66d9ef">for&lt;/span>(&lt;span style="color:#66d9ef">int&lt;/span> i&lt;span style="color:#f92672">=&lt;/span>&lt;span style="color:#ae81ff">0&lt;/span>;i&lt;span style="color:#f92672">&amp;lt;&lt;/span>&lt;span style="color:#ae81ff">8&lt;/span>;i&lt;span style="color:#f92672">++&lt;/span>) {
+&lt;span style="color:#66d9ef">int&lt;/span> aux;
+scanf(&lt;span style="color:#e6db74">&amp;#34;%d&amp;#34;&lt;/span>,&lt;span style="color:#f92672">&amp;amp;&lt;/span>aux);
+vet[aux]&lt;span style="color:#f92672">++&lt;/span>;
+}
+&lt;span style="color:#66d9ef">int&lt;/span> ans&lt;span style="color:#f92672">=&lt;/span>solve(&lt;span style="color:#ae81ff">0&lt;/span>,&lt;span style="color:#f92672">-&lt;/span>&lt;span style="color:#ae81ff">1&lt;/span>);
+puts(ans&lt;span style="color:#f92672">?&lt;/span>&lt;span style="color:#e6db74">&amp;#34;S&amp;#34;&lt;/span>&lt;span style="color:#f92672">:&lt;/span>&lt;span style="color:#e6db74">&amp;#34;N&amp;#34;&lt;/span>);
+&lt;span style="color:#66d9ef">return&lt;/span> &lt;span style="color:#ae81ff">0&lt;/span>;
+}
+&lt;/code>&lt;/pre>&lt;/div></description></item><item><title>Solução OBI 2018 Cinco</title><link>https://gbrls.netlify.com/obi2018-cinco/</link><pubDate>Wed, 05 Feb 2020 00:00:00 +0000</pubDate><guid>https://gbrls.netlify.com/obi2018-cinco/</guid><description>&lt;p>&lt;a href="https://olimpiada.ic.unicamp.br/pratique/pu/2018/f3/cinco/">Enunciado&lt;/a>&lt;br>
+Podemos criar um algoritmo guloso simples, trocar sempre (em ordem):&lt;/p>
+&lt;ol>
+&lt;li>O dígito mais significativo que for trocado por um número maior do que ele&lt;/li>
+&lt;li>(na falha do primeiro) O dígito menos significativo que for trocado por um número menor do que ele&lt;/li>
+&lt;/ol>
+&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-cpp" data-lang="cpp">&lt;span style="color:#75715e">#include&lt;/span> &lt;span style="color:#75715e">&amp;lt;bits/stdc++.h&amp;gt;&lt;/span>&lt;span style="color:#75715e">
+&lt;/span>&lt;span style="color:#75715e">&lt;/span>&lt;span style="color:#66d9ef">using&lt;/span> &lt;span style="color:#66d9ef">namespace&lt;/span> std;
+&lt;span style="color:#66d9ef">int&lt;/span> &lt;span style="color:#a6e22e">main&lt;/span>() {
+&lt;span style="color:#66d9ef">int&lt;/span> n;
+scanf(&lt;span style="color:#e6db74">&amp;#34;%d&amp;#34;&lt;/span>,&lt;span style="color:#f92672">&amp;amp;&lt;/span>n);
+&lt;span style="color:#66d9ef">int&lt;/span> arr[n];
+&lt;span style="color:#66d9ef">for&lt;/span>(&lt;span style="color:#66d9ef">int&lt;/span> i&lt;span style="color:#f92672">=&lt;/span>&lt;span style="color:#ae81ff">0&lt;/span>;i&lt;span style="color:#f92672">&amp;lt;&lt;/span>n;i&lt;span style="color:#f92672">++&lt;/span>) scanf(&lt;span style="color:#e6db74">&amp;#34;%d&amp;#34;&lt;/span>,&lt;span style="color:#f92672">&amp;amp;&lt;/span>arr[i]);
+&lt;span style="color:#66d9ef">for&lt;/span>(&lt;span style="color:#66d9ef">int&lt;/span> i&lt;span style="color:#f92672">=&lt;/span>&lt;span style="color:#ae81ff">0&lt;/span>;i&lt;span style="color:#f92672">&amp;lt;&lt;/span>n;i&lt;span style="color:#f92672">++&lt;/span>) {
+&lt;span style="color:#66d9ef">if&lt;/span>(arr[i]&lt;span style="color:#f92672">&amp;lt;&lt;/span>arr[n&lt;span style="color:#f92672">-&lt;/span>&lt;span style="color:#ae81ff">1&lt;/span>]&lt;span style="color:#f92672">&amp;amp;&amp;amp;&lt;/span>(arr[i]&lt;span style="color:#f92672">==&lt;/span>&lt;span style="color:#ae81ff">0&lt;/span>&lt;span style="color:#f92672">||&lt;/span>arr[i]&lt;span style="color:#f92672">==&lt;/span>&lt;span style="color:#ae81ff">5&lt;/span>)) {
+swap(arr[i],arr[n&lt;span style="color:#f92672">-&lt;/span>&lt;span style="color:#ae81ff">1&lt;/span>]);
+&lt;span style="color:#66d9ef">for&lt;/span>(&lt;span style="color:#66d9ef">int&lt;/span> j&lt;span style="color:#f92672">=&lt;/span>&lt;span style="color:#ae81ff">0&lt;/span>;j&lt;span style="color:#f92672">&amp;lt;&lt;/span>n;j&lt;span style="color:#f92672">++&lt;/span>) printf(&lt;span style="color:#e6db74">&amp;#34;%d%c&amp;#34;&lt;/span>,arr[j],j&lt;span style="color:#f92672">==&lt;/span>n&lt;span style="color:#f92672">-&lt;/span>&lt;span style="color:#ae81ff">1&lt;/span>&lt;span style="color:#f92672">?&lt;/span>&lt;span style="color:#e6db74">&amp;#39;\n&amp;#39;&lt;/span>&lt;span style="color:#f92672">:&lt;/span>&lt;span style="color:#e6db74">&amp;#39; &amp;#39;&lt;/span>);
+exit(&lt;span style="color:#ae81ff">0&lt;/span>);
+}
+}
+&lt;span style="color:#66d9ef">for&lt;/span>(&lt;span style="color:#66d9ef">int&lt;/span> i&lt;span style="color:#f92672">=&lt;/span>n&lt;span style="color:#f92672">-&lt;/span>&lt;span style="color:#ae81ff">1&lt;/span>;i&lt;span style="color:#f92672">&amp;gt;=&lt;/span>&lt;span style="color:#ae81ff">0&lt;/span>;i&lt;span style="color:#f92672">--&lt;/span>) {
+&lt;span style="color:#66d9ef">if&lt;/span>(arr[i]&lt;span style="color:#f92672">==&lt;/span>&lt;span style="color:#ae81ff">0&lt;/span>&lt;span style="color:#f92672">||&lt;/span>arr[i]&lt;span style="color:#f92672">==&lt;/span>&lt;span style="color:#ae81ff">5&lt;/span>) {
+swap(arr[i],arr[n&lt;span style="color:#f92672">-&lt;/span>&lt;span style="color:#ae81ff">1&lt;/span>]);
+&lt;span style="color:#66d9ef">for&lt;/span>(&lt;span style="color:#66d9ef">int&lt;/span> j&lt;span style="color:#f92672">=&lt;/span>&lt;span style="color:#ae81ff">0&lt;/span>;j&lt;span style="color:#f92672">&amp;lt;&lt;/span>n;j&lt;span style="color:#f92672">++&lt;/span>) printf(&lt;span style="color:#e6db74">&amp;#34;%d%c&amp;#34;&lt;/span>,arr[j],j&lt;span style="color:#f92672">==&lt;/span>n&lt;span style="color:#f92672">-&lt;/span>&lt;span style="color:#ae81ff">1&lt;/span>&lt;span style="color:#f92672">?&lt;/span>&lt;span style="color:#e6db74">&amp;#39;\n&amp;#39;&lt;/span>&lt;span style="color:#f92672">:&lt;/span>&lt;span style="color:#e6db74">&amp;#39; &amp;#39;&lt;/span>);
+exit(&lt;span style="color:#ae81ff">0&lt;/span>);
+}
+}
+puts(&lt;span style="color:#e6db74">&amp;#34;-1&amp;#34;&lt;/span>);
+&lt;span style="color:#66d9ef">return&lt;/span> &lt;span style="color:#ae81ff">0&lt;/span>;
+}
+&lt;/code>&lt;/pre>&lt;/div></description></item><item><title>Solução OBI 2018 Maximin</title><link>https://gbrls.netlify.com/obi2018-maximin/</link><pubDate>Wed, 05 Feb 2020 00:00:00 +0000</pubDate><guid>https://gbrls.netlify.com/obi2018-maximin/</guid><description>&lt;p>&lt;a href="https://olimpiada.ic.unicamp.br/pratique/pu/2018/f3/maximin/">Enunciado&lt;/a>&lt;br>
+Como o tamanho máximo do vetor é \(10^5\) podemos ordená-lo. Fazendo isso podemos ver que o número que estamos procurando está
+entre dois números vizinhos no vetor ou está em alguma das extremidades.&lt;/p>
+&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-cpp" data-lang="cpp">&lt;span style="color:#75715e">#include&lt;/span> &lt;span style="color:#75715e">&amp;lt;bits/stdc++.h&amp;gt;&lt;/span>&lt;span style="color:#75715e">
+&lt;/span>&lt;span style="color:#75715e">&lt;/span>&lt;span style="color:#66d9ef">using&lt;/span> &lt;span style="color:#66d9ef">namespace&lt;/span> std;
+&lt;span style="color:#66d9ef">int&lt;/span> &lt;span style="color:#a6e22e">main&lt;/span>() {
+&lt;span style="color:#66d9ef">int&lt;/span> n,r,l;
+scanf(&lt;span style="color:#e6db74">&amp;#34;%d%d%d&amp;#34;&lt;/span>,&lt;span style="color:#f92672">&amp;amp;&lt;/span>n,&lt;span style="color:#f92672">&amp;amp;&lt;/span>r,&lt;span style="color:#f92672">&amp;amp;&lt;/span>l);
+&lt;span style="color:#66d9ef">int&lt;/span> arr[n];
+&lt;span style="color:#66d9ef">for&lt;/span>(&lt;span style="color:#66d9ef">int&lt;/span> i&lt;span style="color:#f92672">=&lt;/span>&lt;span style="color:#ae81ff">0&lt;/span>;i&lt;span style="color:#f92672">&amp;lt;&lt;/span>n;i&lt;span style="color:#f92672">++&lt;/span>) scanf(&lt;span style="color:#e6db74">&amp;#34;%d&amp;#34;&lt;/span>,&lt;span style="color:#f92672">&amp;amp;&lt;/span>arr[i]);
+sort(arr,arr&lt;span style="color:#f92672">+&lt;/span>n);
+&lt;span style="color:#66d9ef">int&lt;/span> dif&lt;span style="color:#f92672">=&lt;/span>&lt;span style="color:#ae81ff">0&lt;/span>;
+&lt;span style="color:#66d9ef">for&lt;/span>(&lt;span style="color:#66d9ef">int&lt;/span> i&lt;span style="color:#f92672">=&lt;/span>&lt;span style="color:#ae81ff">1&lt;/span>;i&lt;span style="color:#f92672">&amp;lt;&lt;/span>n;i&lt;span style="color:#f92672">++&lt;/span>) {
+&lt;span style="color:#66d9ef">int&lt;/span> mid&lt;span style="color:#f92672">=&lt;/span>(arr[i]&lt;span style="color:#f92672">+&lt;/span>arr[i&lt;span style="color:#f92672">-&lt;/span>&lt;span style="color:#ae81ff">1&lt;/span>])&lt;span style="color:#f92672">/&lt;/span>&lt;span style="color:#ae81ff">2&lt;/span>;
+&lt;span style="color:#66d9ef">if&lt;/span>(mid&lt;span style="color:#f92672">&amp;gt;=&lt;/span>r&lt;span style="color:#f92672">&amp;amp;&amp;amp;&lt;/span>mid&lt;span style="color:#f92672">&amp;lt;=&lt;/span>l) dif&lt;span style="color:#f92672">=&lt;/span>max(dif,min(abs(mid&lt;span style="color:#f92672">-&lt;/span>arr[i]),abs(mid&lt;span style="color:#f92672">-&lt;/span>arr[i&lt;span style="color:#f92672">-&lt;/span>&lt;span style="color:#ae81ff">1&lt;/span>])));
+}
+&lt;span style="color:#66d9ef">if&lt;/span>(l&lt;span style="color:#f92672">&amp;gt;&lt;/span>arr[n&lt;span style="color:#f92672">-&lt;/span>&lt;span style="color:#ae81ff">1&lt;/span>]) dif&lt;span style="color:#f92672">=&lt;/span>max(dif, l&lt;span style="color:#f92672">-&lt;/span>arr[n&lt;span style="color:#f92672">-&lt;/span>&lt;span style="color:#ae81ff">1&lt;/span>]);
+&lt;span style="color:#66d9ef">if&lt;/span>(r&lt;span style="color:#f92672">&amp;lt;&lt;/span>arr[&lt;span style="color:#ae81ff">0&lt;/span>]) dif&lt;span style="color:#f92672">=&lt;/span>max(dif,arr[&lt;span style="color:#ae81ff">0&lt;/span>]&lt;span style="color:#f92672">-&lt;/span>r);
+printf(&lt;span style="color:#e6db74">&amp;#34;%d&lt;/span>&lt;span style="color:#ae81ff">\n&lt;/span>&lt;span style="color:#e6db74">&amp;#34;&lt;/span>,dif);
+&lt;span style="color:#66d9ef">return&lt;/span> &lt;span style="color:#ae81ff">0&lt;/span>;
+}
+&lt;/code>&lt;/pre>&lt;/div></description></item><item><title>Solução OBI 2018 Muro</title><link>https://gbrls.netlify.com/obi2018-muro/</link><pubDate>Wed, 05 Feb 2020 00:00:00 +0000</pubDate><guid>https://gbrls.netlify.com/obi2018-muro/</guid><description>&lt;p>&lt;a href="https://olimpiada.ic.unicamp.br/pratique/pu/2018/f3/muro/">Enunciado&lt;/a>&lt;br>
+Podemos criar uma função recursiva: &lt;span class="math">\(f(n) = f(n-1) + 4f(n-2) + 2f(n-3)\)&lt;/span>. Como existem estados que irão se repetir, podemos
+usar um vetor para guardar o valor da função já computados.&lt;/p>
+&lt;div class="highlight">&lt;pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4">&lt;code class="language-cpp" data-lang="cpp">&lt;span style="color:#75715e">#include&lt;/span> &lt;span style="color:#75715e">&amp;lt;bits/stdc++.h&amp;gt;&lt;/span>&lt;span style="color:#75715e">
+&lt;/span>&lt;span style="color:#75715e">#define int long long int
+&lt;/span>&lt;span style="color:#75715e">&lt;/span>&lt;span style="color:#66d9ef">using&lt;/span> &lt;span style="color:#66d9ef">namespace&lt;/span> std;
+&lt;span style="color:#66d9ef">const&lt;/span> &lt;span style="color:#66d9ef">int&lt;/span> mod &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#ae81ff">1e9&lt;/span>&lt;span style="color:#f92672">+&lt;/span>&lt;span style="color:#ae81ff">7&lt;/span>;
+&lt;span style="color:#66d9ef">const&lt;/span> &lt;span style="color:#66d9ef">int&lt;/span> MAX &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#ae81ff">1e4&lt;/span>&lt;span style="color:#f92672">+&lt;/span>&lt;span style="color:#ae81ff">20&lt;/span>;
+&lt;span style="color:#66d9ef">int&lt;/span> dp[MAX]&lt;span style="color:#f92672">=&lt;/span>{};
+&lt;span style="color:#66d9ef">int&lt;/span> &lt;span style="color:#a6e22e">solve&lt;/span>(&lt;span style="color:#66d9ef">int&lt;/span> pos) {
+&lt;span style="color:#66d9ef">if&lt;/span>(pos&lt;span style="color:#f92672">==&lt;/span>&lt;span style="color:#ae81ff">0&lt;/span>) &lt;span style="color:#66d9ef">return&lt;/span> &lt;span style="color:#ae81ff">1&lt;/span>;
+&lt;span style="color:#66d9ef">if&lt;/span>(&lt;span style="color:#f92672">~&lt;/span>dp[pos]) &lt;span style="color:#66d9ef">return&lt;/span> dp[pos];
+&lt;span style="color:#66d9ef">int&lt;/span> ans&lt;span style="color:#f92672">=&lt;/span>&lt;span style="color:#ae81ff">0&lt;/span>;
+ans &lt;span style="color:#f92672">=&lt;/span> (ans&lt;span style="color:#f92672">+&lt;/span>solve(pos&lt;span style="color:#f92672">-&lt;/span>&lt;span style="color:#ae81ff">1&lt;/span>))&lt;span style="color:#f92672">%&lt;/span>mod;
+&lt;span style="color:#66d9ef">if&lt;/span>(pos&lt;span style="color:#f92672">&amp;gt;=&lt;/span>&lt;span style="color:#ae81ff">2&lt;/span>) ans &lt;span style="color:#f92672">=&lt;/span> (ans&lt;span style="color:#f92672">+&lt;/span>&lt;span style="color:#ae81ff">4&lt;/span>&lt;span style="color:#f92672">*&lt;/span>solve(pos&lt;span style="color:#f92672">-&lt;/span>&lt;span style="color:#ae81ff">2&lt;/span>))&lt;span style="color:#f92672">%&lt;/span>mod;
+&lt;span style="color:#66d9ef">if&lt;/span>(pos&lt;span style="color:#f92672">&amp;gt;=&lt;/span>&lt;span style="color:#ae81ff">3&lt;/span>) ans &lt;span style="color:#f92672">=&lt;/span> (ans&lt;span style="color:#f92672">+&lt;/span>&lt;span style="color:#ae81ff">2&lt;/span>&lt;span style="color:#f92672">*&lt;/span>solve(pos&lt;span style="color:#f92672">-&lt;/span>&lt;span style="color:#ae81ff">3&lt;/span>))&lt;span style="color:#f92672">%&lt;/span>mod;
+&lt;span style="color:#66d9ef">return&lt;/span> dp[pos]&lt;span style="color:#f92672">=&lt;/span>ans;
+}
+&lt;span style="color:#66d9ef">int32_t&lt;/span> &lt;span style="color:#a6e22e">main&lt;/span>() {
+memset(dp,&lt;span style="color:#f92672">-&lt;/span>&lt;span style="color:#ae81ff">1&lt;/span>,&lt;span style="color:#66d9ef">sizeof&lt;/span>(dp));
+&lt;span style="color:#66d9ef">int&lt;/span> n;
+scanf(&lt;span style="color:#e6db74">&amp;#34;%lld&amp;#34;&lt;/span>,&lt;span style="color:#f92672">&amp;amp;&lt;/span>n);
+printf(&lt;span style="color:#e6db74">&amp;#34;%lld&lt;/span>&lt;span style="color:#ae81ff">\n&lt;/span>&lt;span style="color:#e6db74">&amp;#34;&lt;/span>,solve(n));
+&lt;span style="color:#66d9ef">return&lt;/span> &lt;span style="color:#ae81ff">0&lt;/span>;
+}
+&lt;/code>&lt;/pre>&lt;/div></description></item></channel></rss>
