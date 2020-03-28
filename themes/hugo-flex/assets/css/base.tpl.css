@@ -5,8 +5,8 @@ body {
   font-family: 'Quicksand', sans-serif;
 
 
-  line-height: 1.8;
-  font-size: 170%;
+  line-height: 2.8rem;
+  font-size: 150%;
   display: flex;
   flex-direction: column;
   min-height: 100vh;
@@ -27,6 +27,8 @@ pre {
   overflow-x: auto;
   border: 0.1rem solid lightgray;
   padding: 1rem;
+
+  line-height: 1.2rem;
 }
 
 code {
