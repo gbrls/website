@@ -73,8 +73,8 @@ have in C, for example.
 
 ### Basic functions
 
-* `PRINT`: Recieves an expression as its input, prints it, and then returns it.  
-* `QUOTE`: Recieves an expression as its input and returns it, without evaluating
+* `PRINT`: Receives an expression as its input, prints it, and then returns it.  
+* `QUOTE`: Receives an expression as its input and returns it, without evaluating
 it.  
 
 Let's try these two functions, let's say that I want to print the list from the
@@ -103,5 +103,5 @@ illustration purposes, in Lisp you could also just do_ `(QUOTE (C-MAJOR (C E
 G)))`.  
 
 There are other important functions that we'll be discussing later, but for the
-next article that's enough.
+next article they are enough.
 
