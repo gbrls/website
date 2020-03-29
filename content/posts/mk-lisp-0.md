@@ -80,7 +80,7 @@ it.
 Let's try these two functions, let's say that I want to print the list from the
 first example. If I call `(PRINT (32 69 613))` it will throw an error because
 Lisp will try to call the function `32` with `69` and `613` as its arguments.
-But with I call `(PRINT (QUOTE (32 69 613)))` it will work as I intended,
+But if I call `(PRINT (QUOTE (32 69 613)))` it will work as I intended,
 because `QUOTE` returns `(32 69 613)` and then `PRINT` prints it, so `QUOTE` is
 a way to convert code into data.  
 
