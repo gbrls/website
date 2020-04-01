@@ -403,4 +403,9 @@ Lisp_Object parse(Token* tokens, int pos, int sz) {
 
 This code isn't that much different from the pseudocode that I've written
 before, the main difference is the parenthesis handling. The code for this
-article can be seen [here](https://github.com/gbrls/lisp-interpreter/blob/a15eb40743e64e9cc60c9e01474050ebf25b59ec/main.c).
+article can be seen
+[here](https://github.com/gbrls/lisp-interpreter/blob/a15eb40743e64e9cc60c9e01474050ebf25b59ec/main.c).  
+
+Every cons and symbol in which we allocate are not fred, so our interpreter is
+leaking memory. The solution for this is called garbage collection, we are going
+to implement it in a latter article.
