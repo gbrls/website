@@ -1,15 +1,21 @@
 ---
-title: "Lisp Interpreter 0: What is Lisp?"
+title: "myLisp Interpreter 0: What is Lisp?"
 date: 2020-03-29T02:56:40-03:00
 ---
 
 This is the first part of a series of articles that I'll be writing to document
-my progress on building a Lisp interpreter.  
+my progress on building a interpreter for a Lisp-like language.  
 
 I've been interested in learning different programming languages for a while now, I've read the
 first chapters of Haskell and Lisp books recently and the one that hooked me on was [Land
 of lisp](http://landoflisp.com/). Lisp's simplicity really struck me: from very
 simple building blocks you can create anything in such an elegant and simple way.
+
+### What is myLisp
+
+myLisp is a lisp-like language, the main goal of it is to be implemented in 
+the most simple and educational way possible.  
+So, what is lisp?
 
 ### A bit of history
 

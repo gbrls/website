@@ -1,12 +1,14 @@
 ---
-title: "Lisp Interpreter 1: Lexer and Parser"
+title: "myLisp Interpreter 1: Lexer and Parser"
 date: 2020-03-30T16:24:43-03:00
 ---
 
 
 This is the second part of a series of articles that I'm writing to document by
-progress on building a Lisp Interpreter. For the previous post [click
+progress on building a Interpreter for myLisp, a lisp-like language. For the previous post [click
 here](/mk-lisp-0).  
+
+###
 
 
 ### What is an interpreter?
@@ -28,7 +30,10 @@ structure _(in our case S-Expressions)_ which can then be executed by another pa
 
 I will be writing this interpreter in C. The most important reason for it is that
 this is a learning project more than anything else, and in C provides us with
-the bare minimum to create what we want.
+the bare minimum to create what we want.  
+It is important to note that there are better ways to implement it, but I don't
+like to read other people's code before I try my own way. Maybe in the future when I'm done,
+I'll change it.
 
 ### Lexer
 
