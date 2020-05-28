@@ -275,7 +275,7 @@ this:
 	Lisp_Object a = OBJ("hello-there", symbol);
 	Lisp_Object b = OBJ(42, number);
 
-I didn't wrote a `Obj_New_cons` because we will be using the fcons function to
+I didn't write a `Obj_New_cons` because we will be using the fcons function to
 create new conses.
 
 ### Printing S-Expressions
@@ -349,7 +349,7 @@ would like in ~~py~~pseudocode:
 			return cons(obj, parse(n+1))
 			
 
-It doesn't work for every S-Expression yet, but the main takeaway for it is that
+It doesn't work for every S-Expression *yet*, but the main takeaway for it is that
 you cons the current object with the rest of the list recursively. The only
 difference between this and a complete parser is that the latter handles
 parenthesis by parsing what is inside the current block and consing it with the
